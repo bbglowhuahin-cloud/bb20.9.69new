@@ -797,6 +797,15 @@ label{color:var(--text-muted);font-weight:500;}
     <div id="home-credit-alerts"></div>
   </div>
 
+  <!-- สิทธิ์ของแถมที่ยังค้าง -->
+  <div class="dash-section" id="dash-voucher-section" style="display:none">
+    <div class="dash-section-header">
+      <div class="dash-section-title">🎁 สิทธิ์ของแถมที่ยังค้าง</div>
+      <div class="dash-section-action" id="dash-voucher-count"></div>
+    </div>
+    <div id="home-voucher-list"></div>
+  </div>
+
   <!-- QUICK SEARCH -->
   <div class="dash-section">
     <div class="dash-section-header">
@@ -823,6 +832,7 @@ label{color:var(--text-muted);font-weight:500;}
       <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="co-search" placeholder="ค้นหาชื่อหรือเบอร์..." oninput="coSearch(this.value)"></div>
       <div id="co-search-results"></div>
       <div id="co-member-info" style="display:none;"></div>
+      <div id="co-voucher-alert" style="display:none;"></div>
     </div>
     <div id="panel-new" style="display:none;">
       <div class="new-member-panel">
@@ -877,10 +887,13 @@ label{color:var(--text-muted);font-weight:500;}
       <div class="service-chip" onclick="selectService(this,'Meso สูตรอาจารย์',2399)"><div class="sc-name">Meso สูตรอาจารย์</div><div class="sc-price">2,399฿</div><div class="sc-tag">★ สมาชิก</div></div>
       <div class="service-chip" id="svc-fade" onclick="selectFadeService(this)"><div class="sc-name">สลายฝ้าตื้น/กระ</div><div class="sc-price">กรอกราคาเอง</div></div>
     </div>
-    <div style="font-size:0.78rem;font-weight:700;color:var(--crimson);margin:10px 0 6px;letter-spacing:0.5px;">⭐ โปรพิเศษ กันยายน</div>
+    <div style="font-size:0.78rem;font-weight:700;color:var(--crimson);margin:10px 0 6px;letter-spacing:0.5px;">⭐ โปรพิเศษ ตุลาคม</div>
     <div class="service-grid">
-      <div class="service-chip" onclick="selectSuperLockPromo(this)"><div class="sc-name">Super Lock + BB คอ</div><div class="sc-price">2,398฿</div><div class="sc-tag">🎁 แว๊กฟรี</div></div>
+      <div class="service-chip svc-oct-promo" onclick="selectOctPromo(this,'A')"><div class="sc-name">โปร A · Super Lock</div><div class="sc-price">1,999฿</div><div class="sc-tag">🎁 แถม 498฿</div></div>
+      <div class="service-chip svc-oct-promo" onclick="selectOctPromo(this,'B')"><div class="sc-name">โปร B · + BB คอ</div><div class="sc-price">2,398฿</div><div class="sc-tag">🎁 แถม 1,397฿</div></div>
+      <div class="service-chip svc-oct-promo" onclick="selectOctPromo(this,'C')"><div class="sc-name">โปร C · มาคู่ (ต่อคน)</div><div class="sc-price">2,398฿</div><div class="sc-tag">🎁 แถม 2,096฿</div></div>
     </div>
+    <div id="oct-gift-panel" style="display:none;margin:4px 0 6px;padding:11px 13px;background:rgba(212,168,75,0.08);border-radius:12px;border:1.5px solid var(--gold);"></div>
     <!-- WAX SECTION -->
     <div style="font-size:0.78rem;font-weight:700;color:var(--crimson);margin:10px 0 6px;letter-spacing:0.5px;">✦ แว๊กซ์ — หน้า</div>
     <div class="service-grid">
@@ -1015,6 +1028,7 @@ label{color:var(--text-muted);font-weight:500;}
     <button class="period-btn active" id="mf-all" onclick="setMemberFilter('all',this)" style="flex:1">👥 ทั้งหมด</button>
     <button class="period-btn" id="mf-member" onclick="setMemberFilter('member',this)" style="flex:1">💜 เมมเบอร์</button>
     <button class="period-btn" id="mf-guest" onclick="setMemberFilter('guest',this)" style="flex:1">👤 ทั่วไป</button>
+    <button class="period-btn" id="mf-voucher" onclick="setMemberFilter('voucher',this)" style="flex:1">🎁 สิทธิ์ค้าง</button>
     <button class="btn btn-gold btn-sm" onclick="openAddCustomer()" style="width:auto;padding:6px 12px;font-size:0.75rem;white-space:nowrap;">➕ เพิ่มลูกค้า</button>
 
   </div>
@@ -1154,16 +1168,31 @@ const ALL_STAFF=[...STAFF,...RETIRED_STAFF];
 // สมาชิก: เป็นแล้วเป็นตลอด ไม่มีวันหมดอายุ (ไม่ต้องต่ออายุ)
 // เครดิต: แต่ละก้อนมีอายุ 1 ปี นับจากวันที่ได้รับก้อนนั้น ๆ แยกกันคนละก้อน
 // เลขรุ่นของระบบ — ดูที่มุมขวาบนของทุกเครื่องว่าตรงกันไหม (ถ้าไม่ตรง = เครื่องนั้นยังใช้ตัวเก่า ให้รีเฟรช)
-const APP_VERSION='2.1 · 17 ก.ย. 69';
+const APP_VERSION='2.2 · 2 ต.ค. 69';
 
 const CREDIT_RATE=0.10, MAX_CREDIT_PCT=0.50, CREDIT_EXPIRE_DAYS=365;
 const BB_OTHER_COMM_RATE=0.14;   // ค่าคอม BB อื่นๆ
-const VOUCHER_VALID_DAYS=30;     // อายุคูปองแว๊กซ์ฟรีจากโปร Super Lock (วัน)   // ค่าคอม 'BB อื่นๆ' หารกันตามจำนวนคนที่ติ๊ก
-const MEMBER_SERVICES=['BB Double Serum','BB Glow Super Lock','Meso สูตรอาจารย์','Super Lock + BB คอ'];
+const GIFT_VOUCHER_DAYS=60;      // อายุคูปองของแถมที่ลูกค้าจะมาใช้วันหลัง (วัน)
+
+// ===== โปรเดือนตุลาคม 2569 =====
+// ของแถมลงบิลเป็น 0 บาท เพื่อให้เห็นว่าแถมอะไรไป — ไม่คิดค่าคอม และไม่คิดต้นทุนในแดชบอร์ด
+const GIFT_LIP   = {id:'lip',     name:'บีบีลิปปาก',                                   value:199};
+const GIFT_MASK3 = {id:'mask3',   name:'แผ่นมาร์คชุ่มชื้น 3 แผ่น',                      value:299};
+const GIFT_BBUA  = {id:'bbua',    name:'บีบีรักแร้',                                   value:899};
+const GIFT_WAXPR = {id:'waxprem', name:'พรีเมียมแว็กซ์ + ทรีตเมนต์กระชับขุมขนรักแร้',     value:699};
+const OCT_PROMOS = {
+  A:{key:'A', title:'โปร A · Super Lock',           svcName:'Super Lock (โปร ต.ค.)',               price:1999, gifts:[GIFT_LIP,GIFT_MASK3]},
+  B:{key:'B', title:'โปร B · Super Lock + BB คอ',   svcName:'Super Lock + BB คอ (โปร ต.ค.)',       price:2398, gifts:[GIFT_LIP,GIFT_MASK3,GIFT_BBUA]},
+  C:{key:'C', title:'โปร C · มาคู่ (คิดต่อคน)',      svcName:'Super Lock + BB คอ (โปร ต.ค. มาคู่)',  price:2398, gifts:[GIFT_LIP,GIFT_MASK3,GIFT_BBUA,GIFT_WAXPR]},
+};
+const MEMBER_SERVICES=['BB Double Serum','BB Glow Super Lock','Meso สูตรอาจารย์','Super Lock + BB คอ',
+  'Super Lock (โปร ต.ค.)','Super Lock + BB คอ (โปร ต.ค.)','Super Lock + BB คอ (โปร ต.ค. มาคู่)'];
 
 let members=[], transactions=[], salesLog=[];
 let custMode='existing', selectedMemberId=null;
 let serviceCart=[], coUseCredit=0; // serviceCart = [{name,price}, ...]
+let octPromoKey=null;      // โปรตุลาคมที่เลือกอยู่ ('A'|'B'|'C'|null)
+let promoGiftMode={};      // {giftId: 'today'|'later'} — ของแถมชิ้นนี้ให้วันนี้ หรือไว้วันหลัง
 let payMethod='cash'; // เงินสด / โอน
 let homecareCart={}; // {itemId: qty}
 let reportPeriod='today', payrollPeriod='month', rankType='spend';
@@ -1244,6 +1273,31 @@ function renderHome(){
   drawHomeChart();
   renderTodayBills();
   renderDashCreditAlerts();
+  renderDashVoucherAlerts();
+}
+
+// สิทธิ์ของแถมที่ลูกค้ายังไม่มาใช้ — เป็นของที่ร้านติดค้างลูกค้าอยู่
+function renderDashVoucherAlerts(){
+  const section=document.getElementById('dash-voucher-section');
+  const el=document.getElementById('home-voucher-list');
+  const cnt=document.getElementById('dash-voucher-count');
+  if(!section||!el) return;
+  const out=allOutstandingVouchers();
+  if(!out.length){ section.style.display='none'; return; }
+  section.style.display='';
+  const val=out.reduce((a,o)=>a+(o.v.value||0),0);
+  if(cnt) cnt.textContent=`${out.length} รายการ${val?' · '+val.toLocaleString()+' ฿':''}`;
+  el.innerHTML=out.slice(0,8).map(({m,v,dl})=>{
+    const ini=m.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="dash-credit-item" onclick="openMemberDetail('${m.id}')" style="cursor:pointer">
+      <div class="dash-cr-avatar">${ini}</div>
+      <div class="dash-cr-info">
+        <div class="dash-cr-name">${m.name}</div>
+        <div class="dash-cr-days">${v.name} · เหลือ ${dl} วัน</div>
+      </div>
+      <div class="dash-cr-amount" style="color:${dl<=7?'#C62828':'var(--gold-dark)'}">${dl<=7?'ใกล้หมด':fmtDate(v.expiry)}</div>
+    </div>`;
+  }).join('')+(out.length>8?`<div style="font-size:0.72rem;color:var(--text-muted);text-align:center;padding:6px;">และอีก ${out.length-8} รายการ — ดูที่หน้าสมาชิก กดปุ่ม 🎁 สิทธิ์ค้าง</div>`:'');
 }
 
 function renderTodayBills(){
@@ -1398,7 +1452,7 @@ function checkMemberEligibility(){
   const el=document.getElementById('new-member-eligibility');
   if(eligible && eligSvc){
     el.style.display='';
-    document.getElementById('new-member-elig-text').textContent=`บริการนี้เข้าเงื่อนไข! จะได้สมาชิกฟรีและเครดิต ${Math.round(eligSvc.price*CREDIT_RATE).toLocaleString()} ฿`;
+    document.getElementById('new-member-elig-text').textContent=`บริการนี้เข้าเงื่อนไข! จะได้สมาชิกฟรีและเครดิต ${Math.ceil(eligSvc.price*CREDIT_RATE).toLocaleString()} ฿`;
   } else { el.style.display='none'; }
 }
 
@@ -1635,13 +1689,22 @@ function renderServiceCart(){
   if(serviceCart.length===0){ el.style.display='none'; return; }
   el.style.display='';
   const total=getServiceTotal();
-  el.innerHTML='<div style="font-size:0.72rem;color:var(--brown);font-weight:700;margin-bottom:4px;">\ud83d\uded2 \u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e17\u0e35\u0e48\u0e40\u0e25\u0e37\u0e2d\u0e01</div>'+
-    serviceCart.map((s,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;padding:2px 0;">'+
-      '<span style="color:var(--text)">\u2022 '+s.name+(s.doerName?' <span style=\'font-size:0.68rem;color:var(--purple)\'>('+s.doerName+')</span>':'')+'</span>'+
-      '<span style="color:var(--gold-dark);font-weight:700;">'+(s.price>0?s.price.toLocaleString()+' \u0e3f':'\u0e01\u0e33\u0e2b\u0e19\u0e14\u0e40\u0e2d\u0e07')+
-      ' <button onclick="removeService('+i+')" style="margin-left:6px;background:none;border:none;color:#C62828;cursor:pointer;font-size:0.85rem;padding:0;line-height:1;">\u2715</button></span></div>').join('')+
+  const rows=serviceCart.map((s,i)=>{
+    const doer=s.doerName?` <span style="font-size:0.68rem;color:var(--purple)">(${s.doerName})</span>`:'';
+    if(s.gift){
+      return `<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;padding:2px 0;">
+        <span style="color:var(--text)">• ${s.name}</span>
+        <span style="color:var(--success);font-weight:700;">ฟรี</span></div>`;
+    }
+    const price=s.price>0?s.price.toLocaleString()+' ฿':'กำหนดเอง';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;padding:2px 0;">
+      <span style="color:var(--text)">• ${s.name}${doer}</span>
+      <span style="color:var(--gold-dark);font-weight:700;">${price}
+      <button onclick="removeService(${i})" style="margin-left:6px;background:none;border:none;color:#C62828;cursor:pointer;font-size:0.85rem;padding:0;line-height:1;">✕</button></span></div>`;
+  }).join('');
+  el.innerHTML='<div style="font-size:0.72rem;color:var(--brown);font-weight:700;margin-bottom:4px;">🛒 บริการที่เลือก</div>'+rows+
     '<div style="border-top:1px solid rgba(212,168,75,0.3);margin-top:5px;padding-top:5px;display:flex;justify-content:space-between;font-weight:700;font-size:0.82rem;">'+
-    '<span style="color:var(--brown);">\u0e23\u0e27\u0e21\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23</span><span style="color:var(--crimson);">'+total.toLocaleString()+' \u0e3f</span></div>';
+    '<span style="color:var(--brown);">รวมบริการ</span><span style="color:var(--crimson);">'+total.toLocaleString()+' ฿</span></div>';
 }
 
 // ===== CUSTOMER CODE =====
@@ -1708,46 +1771,133 @@ async function saveAddCustomer(){
   renderMemberList();
 }
 
-// ===== โปร Super Lock + BB คอ =====
-function selectSuperLockPromo(el){
+// ===== โปรตุลาคม 2569 — เลือกโปร + จัดการของแถม =====
+function selectOctPromo(el,key){
   setCheckoutDirty(true);
-  const idx=serviceCart.findIndex(s=>s.superLockPromo);
-  if(idx>=0){ serviceCart.splice(idx,1); el.classList.remove('selected'); }
-  else { serviceCart.push({name:'Super Lock + BB คอ',price:2398,superLockPromo:true}); el.classList.add('selected'); }
-  coUseCredit=0; renderServiceCart(); updateCheckout();
+  // เอาโปรเดิมและของแถมเดิมออกก่อน
+  serviceCart = serviceCart.filter(x=>!x.octPromo && !x.gift);
+  document.querySelectorAll('.svc-oct-promo').forEach(c=>c.classList.remove('selected'));
+  if(octPromoKey===key){
+    octPromoKey=null; promoGiftMode={};
+  } else {
+    octPromoKey=key; promoGiftMode={};
+    const p=OCT_PROMOS[key];
+    serviceCart.push({name:p.svcName, price:p.price, octPromo:key});
+    p.gifts.forEach(g=>promoGiftMode[g.id]='today');
+    if(el) el.classList.add('selected');
+  }
+  syncGiftLines();
+  coUseCredit=0;
+  renderOctGiftPanel(); renderServiceCart(); updateCheckout();
   if(custMode==='new') checkMemberEligibility();
 }
 
-async function addWaxVoucherIfPromo(memberId){
-  if(!memberId) return;
-  if(!serviceCart.some(s=>s.superLockPromo)) return;
-  const m=members.find(x=>x.id===memberId);
-  if(!m) return;
-  if(!m.vouchers) m.vouchers=[];
-  const now=new Date();
-  const exp=new Date(now); exp.setDate(exp.getDate()+VOUCHER_VALID_DAYS);
-  m.vouchers.push({
-    id:uid('V'),
-    name:'แว๊กซ์&สปารักแร้ฟรี',
-    note:`จากโปร Super Lock (ใช้ได้ ${VOUCHER_VALID_DAYS} วัน)`,
-    expiry:exp.toISOString().slice(0,10),
-    usedAt:null,
-    createdAt:now.toISOString()
+// ของแถมที่ติ๊ก "ให้วันนี้" -> ลงบิลเป็น 0 บาท / ที่ติ๊ก "ไว้วันหลัง" -> ออกเป็นคูปองตอนปิดบิล
+function syncGiftLines(){
+  serviceCart = serviceCart.filter(x=>!x.gift);
+  if(!octPromoKey) return;
+  (OCT_PROMOS[octPromoKey].gifts||[]).forEach(g=>{
+    if(promoGiftMode[g.id]!=='later'){
+      serviceCart.push({name:'🎁 '+g.name+' (ของแถม)', price:0, gift:true, giftId:g.id, giftValue:g.value, commRate:0});
+    }
   });
-  await window.fbSaveMember(m);
-  showToast('🎁 บันทึกสิทธิ์แว๊กซ์ฟรีให้ลูกค้าแล้วค่ะ!');
 }
 
-async function markVoucherUsed(memberId, voucherId){
+function setGiftMode(giftId, mode){
+  if(!octPromoKey) return;
+  promoGiftMode[giftId]=mode;
+  setCheckoutDirty(true);
+  syncGiftLines();
+  renderOctGiftPanel(); renderServiceCart(); updateCheckout();
+}
+
+function renderOctGiftPanel(){
+  const el=document.getElementById('oct-gift-panel'); if(!el) return;
+  if(!octPromoKey){ el.style.display='none'; el.innerHTML=''; return; }
+  const p=OCT_PROMOS[octPromoKey];
+  const later=p.gifts.filter(g=>promoGiftMode[g.id]==='later');
+  const totalVal=p.gifts.reduce((a,g)=>a+g.value,0);
+  el.style.display='';
+  el.innerHTML=
+    `<div style="font-size:0.82rem;font-weight:700;color:var(--brown);margin-bottom:3px;">🎁 ของแถม ${p.title} <span style="font-weight:400;color:var(--text-muted);font-size:0.72rem;">(มูลค่ารวม ${totalVal.toLocaleString()} ฿)</span></div>`+
+    (octPromoKey==='C'?`<div style="font-size:0.72rem;color:var(--crimson);font-weight:700;margin-bottom:5px;">👥 โปรมาคู่ — เปิดบิลคนละใบ ติ๊กโปร C ทั้งสองคน แต่ละคนได้ของแถมชุดเต็ม</div>`:'')+
+    `<div style="font-size:0.71rem;color:var(--text-muted);margin-bottom:8px;">ติ๊กว่าของแต่ละชิ้นให้วันนี้ หรือลูกค้าจะมาใช้วันหลัง — ถ้าวันหลัง ระบบจะออกคูปองให้อัตโนมัติ อายุ ${GIFT_VOUCHER_DAYS} วัน</div>`+
+    p.gifts.map(g=>{
+      const today=promoGiftMode[g.id]!=='later';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px dashed rgba(201,169,110,0.35);">
+        <div style="flex:1;font-size:0.8rem;font-weight:600;color:var(--brown);">${g.name} <span style="font-weight:400;color:var(--text-muted);font-size:0.7rem;">(${g.value.toLocaleString()} ฿)</span></div>
+        <div style="display:flex;gap:4px;flex-shrink:0;">
+          <button onclick="setGiftMode('${g.id}','today')" style="padding:5px 10px;border-radius:8px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.72rem;font-weight:700;border:1.5px solid ${today?'var(--gold-dark)':'rgba(201,169,110,0.35)'};background:${today?'var(--gold)':'white'};color:${today?'white':'var(--text-muted)'};">ให้วันนี้</button>
+          <button onclick="setGiftMode('${g.id}','later')" style="padding:5px 10px;border-radius:8px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.72rem;font-weight:700;border:1.5px solid ${today?'rgba(201,169,110,0.35)':'var(--crimson)'};background:${today?'white':'var(--crimson)'};color:${today?'var(--text-muted)':'white'};">ไว้วันหลัง</button>
+        </div>
+      </div>`;
+    }).join('')+
+    (later.length?`<div style="margin-top:9px;padding:7px 10px;background:#FFF3E0;border:1px solid #FFB300;border-radius:9px;font-size:0.74rem;color:#E65100;">📌 ปิดบิลแล้วจะออกคูปองให้ลูกค้า ${later.length} รายการ: ${later.map(g=>g.name).join(', ')}</div>`:'');
+}
+
+// ปิดบิลแล้วออกคูปองของแถมที่ลูกค้าจะมาใช้วันหลัง
+async function addGiftVouchers(memberId){
+  if(!memberId || !octPromoKey) return;
+  const p=OCT_PROMOS[octPromoKey]; if(!p) return;
+  const later=p.gifts.filter(g=>promoGiftMode[g.id]==='later');
+  if(!later.length) return;
+  const m=members.find(x=>x.id===memberId); if(!m) return;
+  if(!m.vouchers) m.vouchers=[];
+  const now=new Date();
+  const exp=new Date(now); exp.setDate(exp.getDate()+GIFT_VOUCHER_DAYS);
+  later.forEach(g=>{
+    m.vouchers.push({
+      id:uid('V'), name:g.name, value:g.value,
+      note:`ของแถม${p.title} (ใช้ได้ ${GIFT_VOUCHER_DAYS} วัน)`,
+      expiry:exp.toISOString().slice(0,10), usedAt:null, createdAt:now.toISOString()
+    });
+  });
+  await window.fbSaveMember(m);
+  showToast(`🎁 ออกคูปองของแถม ${later.length} รายการให้ลูกค้าแล้วค่ะ`);
+}
+
+// ===== สิทธิ์ของแถมที่ยังค้าง =====
+function activeVouchers(m){
+  if(!m || !m.vouchers) return [];
+  const now=new Date();
+  return m.vouchers.filter(v=>!v.usedAt && new Date(v.expiry+'T23:59:59')>=now);
+}
+function allOutstandingVouchers(){
+  const out=[];
+  members.forEach(m=>activeVouchers(m).forEach(v=>out.push({m,v,dl:daysLeft(v.expiry)})));
+  return out.sort((a,b)=>a.dl-b.dl);
+}
+
+// แถบเตือนตอนเปิดบิล — กันพนักงานลืมกดบันทึกว่าลูกค้าใช้สิทธิ์ไปแล้ว
+function renderCheckoutVoucherAlert(){
+  const el=document.getElementById('co-voucher-alert'); if(!el) return;
+  const m=(custMode==='existing'&&selectedMemberId)?members.find(x=>x.id===selectedMemberId):null;
+  const vs=activeVouchers(m);
+  if(!vs.length){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='';
+  el.innerHTML=`<div style="margin-top:9px;padding:11px 13px;background:#FFF8E1;border:2px solid #FFB300;border-radius:12px;">
+    <div style="font-size:0.85rem;font-weight:700;color:#E65100;margin-bottom:2px;">🎁 ลูกค้ามีสิทธิ์ของแถมค้างอยู่ ${vs.length} รายการ</div>
+    <div style="font-size:0.72rem;color:#8D6E63;margin-bottom:5px;">ถ้าวันนี้ทำให้แล้ว กด "ใช้แล้ว" ตรงนี้เลยค่ะ ไม่ต้องออกจากบิล</div>
+    ${vs.map(v=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px dashed rgba(255,179,0,0.55);">
+      <div style="flex:1;"><div style="font-size:0.8rem;font-weight:700;color:var(--brown)">${v.name}</div>
+      <div style="font-size:0.68rem;color:var(--text-muted)">หมดอายุ ${fmtDate(v.expiry)} · เหลือ ${daysLeft(v.expiry)} วัน</div></div>
+      <button onclick="markVoucherUsed('${m.id}','${v.id}','checkout')" style="flex-shrink:0;padding:6px 11px;border-radius:9px;border:1.5px solid #E65100;background:white;color:#E65100;font-family:'Sarabun',sans-serif;font-size:0.74rem;font-weight:700;cursor:pointer;">ใช้แล้ว ✓</button>
+    </div>`).join('')}
+  </div>`;
+}
+
+async function markVoucherUsed(memberId, voucherId, from){
   const m=members.find(x=>x.id===memberId); if(!m||!m.vouchers) return;
   const v=m.vouchers.find(x=>x.id===voucherId); if(!v) return;
   if(!confirm(`ยืนยันว่าลูกค้าใช้สิทธิ์ "${v.name}" แล้วใช่มั้ยคะ?`)) return;
   v.usedAt=new Date().toISOString();
+  v.usedBy=currentUser?.name||'';
   setSyncing(true);
   await window.fbSaveMember(m);
   setSyncing(false);
   showToast('✅ บันทึกการใช้สิทธิ์แล้วค่ะ');
-  openMemberDetail(memberId);
+  if(from==='checkout'){ renderCheckoutVoucherAlert(); }
+  else { openMemberDetail(memberId); }
 }
 
 function removeService(idx){
@@ -1757,6 +1907,13 @@ function removeService(idx){
     if(c.querySelector('.sc-name')?.textContent===s.name) c.classList.remove('selected');
   });
   serviceCart.splice(idx,1);
+  // ลบตัวโปรออก = ของแถมของโปรนั้นหายไปด้วย
+  if(s&&s.octPromo){
+    octPromoKey=null; promoGiftMode={};
+    serviceCart=serviceCart.filter(x=>!x.gift);
+    document.querySelectorAll('.svc-oct-promo').forEach(c=>c.classList.remove('selected'));
+    renderOctGiftPanel();
+  }
   coUseCredit=0;
   renderSpaDoer();
   renderServiceCart();
@@ -1849,7 +2006,7 @@ function calcBill(){
   const creditLeft  = Math.max(0, Math.round(available - creditUsed));   // แคชแบ็คที่ยังสะสมอยู่
   // แคชแบ็คใหม่: คิดจากราคาก่อนหักแคชแบ็คเดิม เช่น บริการ 2,400 ใช้ไป 400 -> ยังได้คืน 240
   const cashbackBase = CASHBACK_AFTER_DISCOUNT ? totalPaid : (serviceTotal + homecareTotal);
-  const creditEarn  = memberBill && cashbackBase>0 ? Math.round(cashbackBase*CREDIT_RATE) : 0;
+  const creditEarn  = memberBill && cashbackBase>0 ? Math.ceil(cashbackBase*CREDIT_RATE) : 0;   // ปัดขึ้น — รักษาผลประโยชน์ลูกค้า
   return {serviceTotal, homecareTotal, available, maxCredit, creditUsed, creditLeft, totalPaid, paid, creditEarn, memberBill};
 }
 
@@ -1911,6 +2068,7 @@ function updateCheckout(){
   document.getElementById('co-earn-row').style.display=b.creditEarn>0?'':'none';
   document.getElementById('co-earn').textContent='+'+b.creditEarn.toLocaleString()+' ฿ (จากบริการ+สินค้า ใช้ครั้งหน้า)';
   updateHorecareTotal();
+  renderCheckoutVoucherAlert();
 }
 
 function updateCreditUse(val){ coUseCredit=parseInt(val); document.getElementById('co-use-credit-label').textContent=coUseCredit.toLocaleString()+' ฿'; updateCheckout(); }
@@ -2043,8 +2201,9 @@ async function confirmCheckout(){
     }
     if(c.totalComm>0) msg+=` · คอมรวม ${c.totalComm.toLocaleString()}฿`;
     showToast(msg);
-    await addWaxVoucherIfPromo(memberId);
+    await addGiftVouchers(memberId);
     coUseCredit=0; serviceCart=[]; selectedMemberId=null; setCheckoutDirty(false);
+    octPromoKey=null; promoGiftMode={};
     document.querySelectorAll('.service-chip').forEach(ch=>ch.classList.remove('selected'));
     initCheckout();
   } catch(e){ showToast('❌ เกิดข้อผิดพลาด: '+e.message); console.error(e); }
@@ -2063,7 +2222,7 @@ function showReceiptPreview(){
   document.getElementById('modal-body').innerHTML=`
     <div class="receipt">
       <div class="receipt-header"><div class="receipt-shop">BB GLOW</div><div style="font-size:0.74rem;color:var(--text-muted)">ครบวงจร หัวหิน</div><div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px">${now.toLocaleDateString('th-TH',{dateStyle:'full'})}</div></div>
-      ${serviceCart.map(s=>`<div class="receipt-row"><span>${s.name}</span><span>${s.price.toLocaleString()} ฿</span></div>`).join('')}
+      ${serviceCart.map(s=>`<div class="receipt-row"><span>${s.name}</span><span>${s.gift?'ฟรี':s.price.toLocaleString()+' ฿'}</span></div>`).join('')}
       ${b.serviceTotal>0?`<div class="receipt-row"><span>รวมค่าบริการ</span><span>${b.serviceTotal.toLocaleString()} ฿</span></div>`:''}
       ${hcItems.map(i=>`<div class="receipt-row"><span>🛍️ ${i.name} ×${homecareCart[i.id]}</span><span>${(i.price*homecareCart[i.id]).toLocaleString()} ฿</span></div>`).join('')}
       ${b.homecareTotal>0?`<div class="receipt-row"><span>รวมสินค้า</span><span>${b.homecareTotal.toLocaleString()} ฿</span></div>`:''}
@@ -2072,6 +2231,12 @@ function showReceiptPreview(){
       <div class="receipt-row receipt-total"><span>💵 ยอดชำระ</span><span>${b.totalPaid.toLocaleString()} ฿</span></div>
       ${b.creditEarn>0?`<div class="receipt-credit">✨ ${memberNameR} ได้แคชแบ็ค +${b.creditEarn.toLocaleString()} ฿ ใช้ครั้งหน้าได้ (อายุ 1 ปี)</div>`:''}
       ${b.creditUsed>0||b.creditEarn>0?`<div style="font-size:0.7rem;color:var(--text-muted);text-align:center;margin-top:4px;">แคชแบ็คคงเหลือหลังบิลนี้ ${(b.creditLeft+b.creditEarn).toLocaleString()} ฿</div>`:''}
+      ${(()=>{
+        if(!octPromoKey) return '';
+        const later=(OCT_PROMOS[octPromoKey].gifts||[]).filter(g=>promoGiftMode[g.id]==='later');
+        if(!later.length) return '';
+        return `<div class="receipt-credit">🎁 สิทธิ์มาใช้วันหลัง (${GIFT_VOUCHER_DAYS} วัน): ${later.map(g=>g.name).join(', ')}</div>`;
+      })()}
       ${c.totalComm>0?`<div class="receipt-comm">💜 ค่าคอมรวม: ${c.totalComm.toLocaleString()} ฿</div>`:''}
     </div>
     <div style="margin-top:11px;display:grid;gap:7px">
@@ -2094,7 +2259,7 @@ function memberItemHTML(m){
     <div class="mi-avatar" style="${isMem?'':'background:#ddd;color:#888'}">${ini}</div>
     <div class="mi-info">
       <div class="mi-name">${codeTag}${m.name}${badge}</div>
-      <div class="mi-phone">${m.phone||'ไม่มีเบอร์'}${m.referrerId?' · 👥 มีผู้แนะนำ':''}</div>
+      <div class="mi-phone">${m.phone||'ไม่มีเบอร์'}${m.referrerId?' · 👥 มีผู้แนะนำ':''}${activeVouchers(m).length?` · <span style="color:#E65100;font-weight:700">🎁 สิทธิ์ค้าง ${activeVouchers(m).length}</span>`:''}</div>
     </div>
     <div class="mi-credit">
       ${isMem?`<div class="mi-credit-amt">${Math.round(credit).toLocaleString()} ฿</div><div class="mi-credit-label">เครดิต</div>`:'<div class="mi-credit-label" style="color:#aaa">-</div>'}
@@ -2115,6 +2280,7 @@ function renderMemberList(q=''){
   // filter by type
   if(memberFilter==='member') f=f.filter(m=>m.isMember!==false);
   else if(memberFilter==='guest') f=f.filter(m=>m.isMember===false);
+  else if(memberFilter==='voucher') f=f.filter(m=>activeVouchers(m).length>0);
   // search by name, phone, or code
   if(q) f=f.filter(m=>m.name.includes(q)||( m.phone&&m.phone.includes(q))||(m.customerCode&&m.customerCode.includes(q)));
   // sort by customerCode
@@ -2122,7 +2288,12 @@ function renderMemberList(q=''){
   const total=f.length;
   const mem=f.filter(m=>m.isMember!==false).length;
   const guest=total-mem;
-  const summary=`<div style="font-size:0.72rem;color:var(--text-muted);padding:4px 2px 8px;">ทั้งหมด ${total} คน · 💜 เมมเบอร์ ${mem} · 👤 ทั่วไป ${guest}</div>`;
+  let summary=`<div style="font-size:0.72rem;color:var(--text-muted);padding:4px 2px 8px;">ทั้งหมด ${total} คน · 💜 เมมเบอร์ ${mem} · 👤 ทั่วไป ${guest}</div>`;
+  if(memberFilter==='voucher'){
+    const vn=f.reduce((a,m)=>a+activeVouchers(m).length,0);
+    const vv=f.reduce((a,m)=>a+activeVouchers(m).reduce((x,v)=>x+(v.value||0),0),0);
+    summary=`<div style="font-size:0.76rem;color:#E65100;background:#FFF8E1;border:1px solid #FFB300;border-radius:9px;padding:7px 11px;margin-bottom:8px;">🎁 ลูกค้า ${total} คน ถือสิทธิ์ค้างรวม ${vn} รายการ${vv?' · มูลค่า '+vv.toLocaleString()+' ฿':''} — กดชื่อลูกค้าเพื่อกดบันทึกว่าใช้แล้ว</div>`;
+  }
   list.innerHTML=total?summary+f.map(m=>memberItemHTML(m)).join(''):summary+'<div style="text-align:center;padding:36px;color:var(--text-muted)"><div style="font-size:2rem">👤</div><p style="font-size:0.84rem">ไม่พบลูกค้าค่ะ</p></div>';
   checkAssignCodeBanner();
 }
@@ -2144,6 +2315,7 @@ function openMemberDetail(id){
       ${m.customerCode?`<div style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">รหัสลูกค้า #${m.customerCode}</div>`:''}
       <div class="mc-name">${m.name}</div>
       <div class="mc-phone">📞 ${m.phone||'ไม่มีเบอร์'} · สมัคร ${fmtDate(m.joinDate)}</div><div class="mc-credit-label">เครดิตคงเหลือ</div><div class="mc-credit">${Math.round(credit).toLocaleString()} <span>บาท</span></div>${expInfo}</div>
+    <button class="btn btn-outline btn-sm" onclick="openEditMember('${m.id}')" style="width:100%;margin-bottom:9px;">✏️ แก้ไขข้อมูลลูกค้า</button>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:11px">
       <div class="rs-card"><div class="rs-num" style="color:var(--gold-dark)">${totalSpend.toLocaleString()}</div><div class="rs-label">ยอดใช้รวม ฿</div></div>
       <div class="rs-card"><div class="rs-num" style="color:var(--success)">${referred.length}</div><div class="rs-label">แนะนำเพื่อน</div></div>
@@ -2194,6 +2366,15 @@ function openMemberDetail(id){
           <span style="font-size:0.68rem;background:#FFEBEE;color:#C62828;padding:3px 8px;border-radius:20px;font-weight:700;">หมดอายุ</span>
         </div>`).join('');
     })()}
+    ${(()=>{
+      const logs=(m.editLog||[]).slice().reverse();
+      if(!logs.length) return '';
+      return `<div class="section-title">✏️ ประวัติการแก้ไขข้อมูล</div>`+
+        logs.slice(0,8).map(g=>`<div style="font-size:0.72rem;color:var(--text-muted);padding:5px 2px;border-bottom:1px dashed rgba(201,169,110,0.25);">
+          <div style="color:var(--brown);font-weight:600;">${fmtDate(g.at)} ${new Date(g.at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})} · ${g.by||'-'}</div>
+          ${(g.changes||[]).map(ch=>`<div>${ch.f}: <span style="text-decoration:line-through;">${ch.from||'(ว่าง)'}</span> → <strong style="color:var(--gold-dark)">${ch.to||'(ว่าง)'}</strong></div>`).join('')}
+        </div>`).join('');
+    })()}
     <div class="section-title">📋 ประวัติ</div>
     ${txList.map(t=>{
       const isVoid=t.type==='void';
@@ -2209,6 +2390,57 @@ function openMemberDetail(id){
       <button class="btn btn-sm" onclick="deleteConfirm('${id}')" style="width:100%;background:transparent;border:1.5px solid var(--danger);color:var(--danger)">🗑️ ลบ</button>
     </div>`;
   document.getElementById('modal-overlay').classList.add('open');
+}
+
+// ===== แก้ไขข้อมูลลูกค้า (ไม่ต้องวอยบิล) =====
+function esc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function openEditMember(id){
+  const m=members.find(x=>x.id===id); if(!m) return;
+  document.getElementById('modal-body').innerHTML=`
+    <div style="font-size:1rem;font-weight:700;color:var(--crimson);margin-bottom:3px;">✏️ แก้ไขข้อมูลลูกค้า</div>
+    <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:13px;">รหัสลูกค้า #${m.customerCode||'-'} · คีย์ชื่อหรือเบอร์ผิดแก้ได้เลย ไม่ต้องวอยบิล — เครดิตและประวัติยังอยู่ครบค่ะ</div>
+    <div class="form-group"><label>ชื่อ-นามสกุล *</label><input type="text" id="em-name" value="${esc(m.name)}"></div>
+    <div class="form-group"><label>📞 เบอร์โทร</label><input type="tel" id="em-phone" maxlength="10" value="${esc(m.phone)}" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+    <div class="form-group"><label>🎂 วันเกิด</label><input type="date" id="em-dob" value="${esc(m.dob)}"></div>
+    <div class="form-group"><label>📝 หมายเหตุ / แพ้อะไร</label><input type="text" id="em-note" value="${esc(m.note)}"></div>
+    <div style="font-size:0.7rem;color:var(--text-muted);margin:-3px 0 13px;">🔒 แก้ไม่ได้: รหัสลูกค้า · สถานะสมาชิก · ยอดแคชแบ็ค</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <button class="btn btn-outline btn-sm" onclick="openMemberDetail('${m.id}')">ยกเลิก</button>
+      <button class="btn btn-gold btn-sm" onclick="saveEditMember('${m.id}')">✅ บันทึก</button>
+    </div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+async function saveEditMember(id){
+  const m=members.find(x=>x.id===id); if(!m) return;
+  const name=document.getElementById('em-name').value.trim();
+  const phone=document.getElementById('em-phone').value.trim();
+  const dob=document.getElementById('em-dob').value;
+  const note=document.getElementById('em-note').value.trim();
+  if(!name){ showToast('⚠️ กรุณากรอกชื่อค่ะ'); return; }
+  if(phone && phone.length!==10){ showToast('⚠️ เบอร์โทรต้องมี 10 หลักค่ะ'); return; }
+  if(phone){
+    const dup=members.find(x=>x.id!==id && x.phone===phone);
+    if(dup){ showToast(`⚠️ เบอร์นี้เป็นของ ${dup.name}${dup.customerCode?' (#'+dup.customerCode+')':''} อยู่แล้วค่ะ`); return; }
+  }
+  const changes=[];
+  if((m.name||'')!==name)   changes.push({f:'ชื่อ',      from:m.name||'',  to:name});
+  if((m.phone||'')!==phone) changes.push({f:'เบอร์โทร',  from:m.phone||'', to:phone});
+  if((m.dob||'')!==dob)     changes.push({f:'วันเกิด',   from:m.dob||'',   to:dob});
+  if((m.note||'')!==note)   changes.push({f:'หมายเหตุ',  from:m.note||'',  to:note});
+  if(!changes.length){ showToast('ไม่มีอะไรเปลี่ยนค่ะ'); openMemberDetail(id); return; }
+  if(!m.editLog) m.editLog=[];
+  m.editLog.push({at:new Date().toISOString(), by:currentUser?.name||'-', changes});
+  m.name=name; m.phone=phone; m.dob=dob; m.note=note;
+  setSyncing(true);
+  try{
+    await window.fbSaveMember(m);
+    showToast('✅ แก้ไขข้อมูลเรียบร้อยค่ะ');
+  }catch(e){ showToast('❌ บันทึกไม่สำเร็จ: '+e.message); }
+  setSyncing(false);
+  renderMemberList(document.getElementById('member-search')?.value||'');
+  openMemberDetail(id);
 }
 
 function showDeductCredit(memberId){
@@ -2826,6 +3058,9 @@ function initCheckout(){
   if(document.getElementById('co-search-results')) document.getElementById('co-search-results').innerHTML='';
   document.getElementById('member-eligible-warning').style.display='none';
   document.querySelectorAll('.service-chip').forEach(c=>c.classList.remove('selected'));
+  octPromoKey=null; promoGiftMode={};
+  const octPanel=document.getElementById('oct-gift-panel'); if(octPanel){ octPanel.style.display='none'; octPanel.innerHTML=''; }
+  const vAlert=document.getElementById('co-voucher-alert'); if(vAlert){ vAlert.style.display='none'; vAlert.innerHTML=''; }
   // ตั้งวันที่เป็นวันนี้
   const coDateEl = document.getElementById('co-date');
   if(coDateEl) coDateEl.value = new Date().toISOString().slice(0,10);
