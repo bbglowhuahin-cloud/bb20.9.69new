@@ -1168,7 +1168,7 @@ const ALL_STAFF=[...STAFF,...RETIRED_STAFF];
 // สมาชิก: เป็นแล้วเป็นตลอด ไม่มีวันหมดอายุ (ไม่ต้องต่ออายุ)
 // เครดิต: แต่ละก้อนมีอายุ 1 ปี นับจากวันที่ได้รับก้อนนั้น ๆ แยกกันคนละก้อน
 // เลขรุ่นของระบบ — ดูที่มุมขวาบนของทุกเครื่องว่าตรงกันไหม (ถ้าไม่ตรง = เครื่องนั้นยังใช้ตัวเก่า ให้รีเฟรช)
-const APP_VERSION='2.2 · 2 ต.ค. 69';
+const APP_VERSION='2.3 · 9 พ.ย. 69';
 
 const CREDIT_RATE=0.10, MAX_CREDIT_PCT=0.50, CREDIT_EXPIRE_DAYS=365;
 const BB_OTHER_COMM_RATE=0.14;   // ค่าคอม BB อื่นๆ
@@ -1638,12 +1638,16 @@ function selectPayMethod(method){
 }
 
 const HOMECARE_ITEMS = [
-  {id:'foam_pinn',    name:'โฟมล้างหน้า',      price:370, icon:'🧴'},
-  {id:'moist_pinn',   name:'มอยด์เจอร์',       price:350, icon:'🧴'},
+  // ── ตัวใหม่ ยี่ห้อ HIS (เริ่ม 9 พ.ย. 69) ──
+  {id:'gel_his',      name:'เจลล้างหน้า HIS',   price:320, icon:'🧴'},
+  {id:'moist_his',    name:'มอยส์เจอร์ HIS',    price:280, icon:'🧴'},
+  {id:'mask_his',     name:'แผ่นมาร์คหน้า HIS', price:99,  icon:'🎭'},
+  // ── ตัวเก่า ขายจนหมดสต๊อกแล้วค่อยลบบรรทัดออกได้ ──
+  {id:'foam_pinn',    name:'โฟมล้างหน้า (ตัวเก่า)',price:370, icon:'🧴'},
+  {id:'moist_pinn',   name:'มอยด์เจอร์ (ตัวเก่า)', price:350, icon:'🧴'},
   {id:'adv_pinn',     name:'แอดวานซ์เซรั่ม',   price:390, icon:'🧴'},
   {id:'mask_uv',      name:'แมสยูวี',           price:159, icon:'😷'},
   {id:'spray_spf',    name:'สเปรย์กันแดด',     price:550, icon:'🌞'},
-  {id:'mask_face',    name:'มาร์กหน้า',         price:9,   icon:'🎭'},
   {id:'essence_wax',  name:'เอสเซ้น ผิวแข็งแรง',price:490, icon:'💧'},
   {id:'scrub_wax',    name:'สครับ',             price:300, icon:'🧴'},
   {id:'mask_wax',     name:'มาร์ค',             price:300, icon:'🎭'},
